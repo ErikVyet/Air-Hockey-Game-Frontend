@@ -17,6 +17,7 @@ type CustomInputProps = {
 type CustomTextFieldProps = {
     type: "text" | "password",
     value: string,
+    placeholder?: string,
     limit?: number,
     tooltip?: string,
     copiable?: boolean,
@@ -25,7 +26,7 @@ type CustomTextFieldProps = {
     onChange: (event: ChangeEvent<HTMLInputElement>) => void
 }
 
-export function CustomTextField({ type, color, value, limit = Infinity, label, tooltip, copiable = false, disableBoxShadow = false, disableOutline = false, onChange }: CustomInputProps & CustomTextFieldProps) {
+export function CustomTextField({ type, color, value, placeholder, limit = Infinity, label, tooltip, copiable = false, disableBoxShadow = false, disableOutline = false, onChange }: CustomInputProps & CustomTextFieldProps) {
     const [length, setLength] = useState(value.length);
     const [openAlert, setOpenAlert] = useState(false);
     const [message, setMessage] = useState("");
@@ -98,7 +99,7 @@ export function CustomTextField({ type, color, value, limit = Infinity, label, t
                 )}
                 <Stack className="items-center" direction={"row"} spacing={2.5}>
                     <Box className="relative w-full">
-                        <OutlinedInput className={`${INPUT_BG_COLOR} ${type === "text" && FONT_FAMILY} ${TEXT_COLOR} ${outlineStyle} rounded-md! ${limit !== Infinity && 'pr-18!'}`} type={type} value={value} {...props} onChange={handleInputChange} />
+                        <OutlinedInput className={`${INPUT_BG_COLOR} ${type === "text" && FONT_FAMILY} ${TEXT_COLOR} ${outlineStyle} rounded-md! ${limit !== Infinity && 'pr-18!'}`} type={type} value={value} placeholder={placeholder} {...props} onChange={handleInputChange} />
                         {limit !== Infinity && (
                             <Typography className={`absolute top-1/2 right-3 -translate-y-1/2 ${FONT_FAMILY} text-sm! text-zinc-500`}>{length} / {limit}</Typography>
                         )}
@@ -122,12 +123,11 @@ export function CustomTextField({ type, color, value, limit = Infinity, label, t
 type CustomSliderProps = {
     value: number,
     range: [min: number, max: number],
-    orientation: "horizontal" | "vertical",
     onChange: (event: Event, value: number | number[], activeThumb: number) => void,
     onChangeCommitted?: (event: SyntheticEvent | Event, value: number | number[]) => void
 }
 
-export function CustomSlider({ value, range, color, label, orientation, onChange, onChangeCommitted }: CustomInputProps & CustomSliderProps) {
+export function CustomSlider({ value, range, color, label, onChange, onChangeCommitted }: CustomInputProps & CustomSliderProps) {
     const rail = useMemo(() => {
         switch (color) {
             case ("blue"): return { height: "8px", color: blue[500] };
@@ -158,7 +158,19 @@ export function CustomSlider({ value, range, color, label, orientation, onChange
                 '& .MuiSlider-rail': rail,
                 '& .MuiSlider-track': track
             },
-            slotProps: { thumb }
+            slotProps: { 
+                thumb: { ...thumb, sx: {
+                    '&:hover': {
+                        boxShadow: 'none',
+                    },
+                    '&.Mui-active': {
+                        boxShadow: 'none',
+                    },
+                    '&.Mui-focusVisible': {
+                        boxShadow: 'none',
+                    }
+                }} 
+            }
         };
     }, [track]);
 
@@ -168,7 +180,7 @@ export function CustomSlider({ value, range, color, label, orientation, onChange
                 <Typography className={`${FONT_FAMILY} ${TEXT_COLOR} font-semibold! text-xl!`}>{label}</Typography>
             )}
             <Stack className="w-full justify-between items-center" direction={"row"} spacing={2}>
-                <Slider min={range[0]} max={range[1]} value={value} orientation={orientation} {...props} onChange={onChange} onChangeCommitted={onChangeCommitted}/>
+                <Slider min={range[0]} max={range[1]} value={value} {...props} onChange={onChange} onChangeCommitted={onChangeCommitted}/>
                 <Typography className={`w-14! text-center ${FONT_FAMILY} ${TEXT_COLOR} font-semibold! text-xl!`}>{value}</Typography>
             </Stack>
         </FormControl>

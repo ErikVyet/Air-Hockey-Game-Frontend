@@ -8,6 +8,7 @@ import { motion } from "motion/react";
 import Hosting from "../components/menu_view/Hosting";
 import { MENU_ACTION_BUTTON_ANIMATION_DELAY } from "../constants/props";
 import Setting from "../components/menu_view/Setting";
+import Joining from "../components/menu_view/Joining";
 
 export default function MenuView() {
     const menuContext = useContext(MenuContext);
@@ -37,9 +38,7 @@ export default function MenuView() {
         ) : menuAction === MenuAction.HOSTING ? (
             <Hosting/>
         ) : menuAction === MenuAction.JOINING ? (
-            <>
-                123
-            </>
+            <Joining/>
         ) : (
             <Setting/>
         )

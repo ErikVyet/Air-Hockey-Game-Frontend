@@ -1,0 +1,10 @@
+{
+    "data": [
+        { "id": "1", "name": "Session 1", "participants": 1, "spectators": 0 },
+        { "id": "2", "name": "Session 2", "participants": 2, "spectators": 2, "password": "123" },
+        { "id": "3", "name": "SESSION ABC", "participants": 1, "spectators": 4 },
+        { "id": "4", "name": "SOLO LEVELING", "participants": 1, "spectators": 1, "password": "A" },
+        { "id": "5", "name": "Test Session", "participants": 2, "spectators": 0 },
+        { "id": "6", "name": "ABCDEFGHIJKLMN123456", "participants": 1, "spectators": 3, "password": "ABC" }
+    ]
+}

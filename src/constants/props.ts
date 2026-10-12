@@ -11,8 +11,13 @@ export const OUTLINED_INPUT_COMMON_PROPS: OutlinedInputProps = {
     },
     slotProps: {
         input: {
-            sx: { 
-                "::-ms-reveal": { display: "none" }
+            sx: {
+                "::-ms-reveal": { display: "none" },
+            }
+        },
+        notchedOutline: {
+            sx: {
+                border: "none"
             }
         }
     },

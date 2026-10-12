@@ -28,7 +28,7 @@ export default function Hosting() {
             <Stack className="w-full justify-center items-center" spacing={4}>
                 <Stack className="w-full justify-center items-center" spacing={3}>
                     <CustomTextField type={"text"} color={"blue"} value={sessionName} limit={20} label={"Session Name"} onChange={handleSessionNameChange}/>
-                    <CustomSlider color={"blue"} orientation={"horizontal"} range={[0, 4]} value={spectators} label={"Spectators"} onChange={handleSpectatorsChange}/>
+                    <CustomSlider color={"blue"} range={[0, 4]} value={spectators} label={"Spectators"} onChange={handleSpectatorsChange}/>
                     <CustomTextField type={"password"} color={"blue"} value={password} limit={20} label={"Password"} tooltip={"Leave empty if everyone can join"} copiable onChange={handlePasswordChange}/>
                 </Stack>
                 <Stack className="w-full justify-center" spacing={3}>

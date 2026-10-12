@@ -29,7 +29,7 @@ export default function Setting() {
             <Typography className={`${FONT_FAMILY} ${TEXT_COLOR} text-3xl! uppercase`}>Setting</Typography>
             <Stack className="w-full justify-center items-center" spacing={4}>
                 <Stack className="w-full justify-center items-center" spacing={3}>
-                    <CustomSlider value={masterVolumn} range={[0, 100]} color={"yellow"} orientation={"horizontal"} label={"Master Volumn"} onChange={handleMasterVolumnChange} onChangeCommitted={handleMasterVolumnChangeCommitted}/>
+                    <CustomSlider value={masterVolumn} range={[0, 100]} color={"yellow"} label={"Master Volumn"} onChange={handleMasterVolumnChange} onChangeCommitted={handleMasterVolumnChangeCommitted}/>
                     <CustomSwitch checked={fullScreen} color={"yellow"} label={"Fullscreen"} onChange={handleFullScreenChange}/>
                     <CustomSwitch checked={vrMode} color={"yellow"} label={"VR Mode"} onChange={handleVrModeChange}/>
                     <CustomSwitch checked={arMode} color={"yellow"} label={"AR Mode"} onChange={handleArModeChange}/>
