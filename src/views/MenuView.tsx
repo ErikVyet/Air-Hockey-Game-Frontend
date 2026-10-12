@@ -7,6 +7,7 @@ import { MenuAction } from "../enums/MenuAction";
 import { motion } from "motion/react";
 import Hosting from "../components/menu_view/Hosting";
 import { MENU_ACTION_BUTTON_ANIMATION_DELAY } from "../constants/props";
+import Setting from "../components/menu_view/Setting";
 
 export default function MenuView() {
     const menuContext = useContext(MenuContext);
@@ -40,9 +41,7 @@ export default function MenuView() {
                 123
             </>
         ) : (
-            <>
-
-            </>
+            <Setting/>
         )
     );
 }

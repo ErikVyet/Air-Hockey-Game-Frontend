@@ -1,10 +1,11 @@
 import { Alert, Box, FormControl, IconButton, OutlinedInput, Slider, Snackbar, Stack, Tooltip, Typography, type OutlinedInputProps, type SliderProps } from "@mui/material";
-import { useMemo, useState, type ChangeEvent } from "react";
+import { useMemo, useState, type ChangeEvent, type SyntheticEvent } from "react";
 import { FONT_FAMILY, INPUT_BG_COLOR, TEXT_COLOR } from "../../constants/style";
 import { OUTLINED_INPUT_COMMON_PROPS, SNACKBAR_COMMON_PROPS } from "../../constants/props";
 import { COMMON_INPUT_VALIDATOR, PASSWORD_INPUT_VALIDATOR } from "../../validators/input";
 import { ContentCopy, HelpOutlineOutlined } from "@mui/icons-material";
 import { blue, green, yellow } from "@mui/material/colors";
+import { motion } from "framer-motion";
 
 type CustomInputProps = {
     color: "blue" | "green" | "yellow",
@@ -21,7 +22,7 @@ type CustomTextFieldProps = {
     copiable?: boolean,
     disableBoxShadow?: boolean,
     disableOutline?: boolean,
-    onChange?: (event: ChangeEvent<HTMLInputElement>) => void
+    onChange: (event: ChangeEvent<HTMLInputElement>) => void
 }
 
 export function CustomTextField({ type, color, value, limit = Infinity, label, tooltip, copiable = false, disableBoxShadow = false, disableOutline = false, onChange }: CustomInputProps & CustomTextFieldProps) {
@@ -104,7 +105,7 @@ export function CustomTextField({ type, color, value, limit = Infinity, label, t
                     </Box>
                     {tooltip && (
                         <Tooltip title={tooltip} placement={"top"} arrow>
-                            <HelpOutlineOutlined className="text-zinc-500!" />
+                            <HelpOutlineOutlined className="size-5! text-zinc-500!" />
                         </Tooltip>
                     )}
                 </Stack>
@@ -122,10 +123,11 @@ type CustomSliderProps = {
     value: number,
     range: [min: number, max: number],
     orientation: "horizontal" | "vertical",
-    onChange?: (event: Event, value: number) => void
+    onChange: (event: Event, value: number | number[], activeThumb: number) => void,
+    onChangeCommitted?: (event: SyntheticEvent | Event, value: number | number[]) => void
 }
 
-export function CustomSlider({ value, range, color, label, orientation, onChange }: CustomInputProps & CustomSliderProps) {
+export function CustomSlider({ value, range, color, label, orientation, onChange, onChangeCommitted }: CustomInputProps & CustomSliderProps) {
     const rail = useMemo(() => {
         switch (color) {
             case ("blue"): return { height: "8px", color: blue[500] };
@@ -165,9 +167,59 @@ export function CustomSlider({ value, range, color, label, orientation, onChange
             {label && (
                 <Typography className={`${FONT_FAMILY} ${TEXT_COLOR} font-semibold! text-xl!`}>{label}</Typography>
             )}
-            <Stack className="justify-between items-center" direction={"row"} spacing={3}>
-                <Slider className="w-2xs!" min={range[0]} max={range[1]} value={value} orientation={orientation} {...props} onChange={onChange} />
-                <Typography className={`w-5! text-center ${FONT_FAMILY} ${TEXT_COLOR} font-semibold! text-xl!`}>{value}</Typography>
+            <Stack className="w-full justify-between items-center" direction={"row"} spacing={2}>
+                <Slider min={range[0]} max={range[1]} value={value} orientation={orientation} {...props} onChange={onChange} onChangeCommitted={onChangeCommitted}/>
+                <Typography className={`w-14! text-center ${FONT_FAMILY} ${TEXT_COLOR} font-semibold! text-xl!`}>{value}</Typography>
+            </Stack>
+        </FormControl>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------------------- */
+
+type CustomSwitchProps = {
+    checked: boolean,
+    onText?: string,
+    offText?: string,
+    disableOutline?: boolean,
+    disableBoxShadow?: boolean,
+    onChange: () => void
+}
+
+export function CustomSwitch({ checked, color, label, onText = "On", offText = "Off", disableOutline = false, disableBoxShadow = false, onChange }: CustomInputProps & CustomSwitchProps) {
+    const bgColor = useMemo(() => {
+        switch (color) {
+            case ("blue"): return "bg-blue-500";
+            case ("green"): return "bg-green-500";
+            case ("yellow"): return "bg-yellow-500";
+        }
+    }, [color]);
+
+    const outlineColor = useMemo(() => {
+        switch (color) {
+            case ("blue"): return "outline-blue-500";
+            case ("green"): return "outline-green-500";
+            case ("yellow"): return "outline-yellow-500";
+        }
+    }, [color]);
+
+    const boxShadowColor = useMemo(() => {
+        switch (color) {
+            case ("blue"): return blue[300];
+            case ("green"): return green[300];
+            case ("yellow"): return yellow[500];
+        }
+    }, [color]);
+
+    return (
+        <FormControl className="flex-row! justify-between items-center gap-3" fullWidth>
+            {label && (
+                <Typography className={`${FONT_FAMILY} ${TEXT_COLOR} font-semibold! text-xl!`}>{label}</Typography>
+            )}
+            <Stack className={`relative w-30 h-full ${INPUT_BG_COLOR} ${!disableOutline && 'outline-3'} ${outlineColor} rounded-xs cursor-pointer overflow-hidden`} direction={"row"} sx={{ boxShadow: disableBoxShadow ? "none" : `-5.5px 5.5px 0 ${boxShadowColor}` }} onClick={() => onChange()}>
+                <Typography className={`flex-1 z-10 ${FONT_FAMILY} ${TEXT_COLOR} text-center place-content-center`}>{onText}</Typography>
+                <Typography className={`flex-1 z-10 ${FONT_FAMILY} ${TEXT_COLOR} text-center place-content-center`}>{offText}</Typography>
+                <Box className={`absolute top-0 left-0 w-1/2 h-full ${bgColor}`} component={motion.div} initial={{ left: checked ? "0%" : "50%" }} animate={{ left: checked ? "0%" : "50%" }}/>
             </Stack>
         </FormControl>
     )

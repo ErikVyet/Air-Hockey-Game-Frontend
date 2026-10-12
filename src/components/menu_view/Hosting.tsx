@@ -18,7 +18,7 @@ export default function Hosting() {
     const [password, setPassword] = useState("");
 
     const handleSessionNameChange = (event: ChangeEvent<HTMLInputElement>) => setSessionName(event.currentTarget.value);
-    const handleSpectatorsChange = (_event: Event, value: number) => setSpectators(value);
+    const handleSpectatorsChange = (_event: Event, value: number | number[], _activeThumb: number) => setSpectators(value as number);
     const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => setPassword(event.currentTarget.value);
     const handleBackClick = () => setMenuAction(MenuAction.ORIGINAL);
 
