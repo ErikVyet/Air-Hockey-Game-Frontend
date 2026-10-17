@@ -33,7 +33,7 @@ export default function SessionControlPanel() {
 
         handleUpdatePlayers();
 
-        const handleStateChange = activeSession.onStateChange(state => {
+        activeSession.onStateChange(state => {
             // Update max rounds
             setMaxRounds(state.maxRounds);
 
@@ -41,17 +41,14 @@ export default function SessionControlPanel() {
             handleUpdatePlayers();
         });
 
-        const handleLeave = activeSession.onLeave(() => {
+        activeSession.onLeave(() => {
             setSessionViewport(SessionViewport.NONE);
             setMenuAction(MenuAction.ORIGINAL);
             setActiveSession(null);
             navigate("/", { replace: true });
         });
 
-        return () => { 
-            handleStateChange.clear();
-            handleLeave.clear();
-        }
+        return () => { activeSession.removeAllListeners(); }
     }, [activeSession]);
 
     useEffect(() => {
@@ -80,7 +77,12 @@ export default function SessionControlPanel() {
         activeSession?.send(SessionMessage.KICK_PLAYER, targetSessionId);
     };
     const handleLeaveClick = () => {
-        activeSession?.leave(true);
+        activeSession?.leave(true).then(() => {
+            setSessionViewport(SessionViewport.NONE);
+            setMenuAction(MenuAction.ORIGINAL);
+            setActiveSession(null);
+            navigate("/", { replace: true });
+        });
     };
     const handleReadyChange = () => {
         activeSession?.send(SessionMessage.UPDATE_PLAYER_READY_STATE);
