@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@colyseus/react": "^0.18.4",
+    "@colyseus/schema": "^5.0.39",
+    "@colyseus/sdk": "^0.18.5",
     "@dimforge/rapier3d-compat": "^0.21.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",

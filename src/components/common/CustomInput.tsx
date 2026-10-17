@@ -4,12 +4,13 @@ import { FONT_FAMILY, INPUT_BG_COLOR, TEXT_COLOR } from "../../constants/style";
 import { OUTLINED_INPUT_COMMON_PROPS, SNACKBAR_COMMON_PROPS } from "../../constants/props";
 import { COMMON_INPUT_VALIDATOR, PASSWORD_INPUT_VALIDATOR } from "../../validators/input";
 import { ContentCopy, HelpOutlineOutlined } from "@mui/icons-material";
-import { blue, green, yellow } from "@mui/material/colors";
+import { blue, green, grey, yellow } from "@mui/material/colors";
 import { motion } from "framer-motion";
 
 type CustomInputProps = {
-    color: "blue" | "green" | "yellow",
+    color: "blue" | "green" | "yellow" | "zinc",
     label?: string,
+    readOnly?: boolean
 }
 
 /* ------------------------------------------------------------------------------------------------------------------------------- */
@@ -26,8 +27,8 @@ type CustomTextFieldProps = {
     onChange: (event: ChangeEvent<HTMLInputElement>) => void
 }
 
-export function CustomTextField({ type, color, value, placeholder, limit = Infinity, label, tooltip, copiable = false, disableBoxShadow = false, disableOutline = false, onChange }: CustomInputProps & CustomTextFieldProps) {
-    const [length, setLength] = useState(value.length);
+export function CustomTextField({ type, color, value, placeholder, limit = Infinity, label, tooltip, copiable = false, disableBoxShadow = false, disableOutline = false, readOnly = false, onChange }: CustomInputProps & CustomTextFieldProps) {
+    const [length, setLength] = useState(value?.length ?? 0);
     const [openAlert, setOpenAlert] = useState(false);
     const [message, setMessage] = useState("");
     const [isError, setIsError] = useState(false);
@@ -41,6 +42,7 @@ export function CustomTextField({ type, color, value, placeholder, limit = Infin
                 case ("blue"): return "outline-3! outline-blue-500!";
                 case ("green"): return "outline-3! outline-green-500!";
                 case ("yellow"): return "outline-3! outline-yellow-500!";
+                case ("zinc"): return "outline-3! outline-zinc-500!";
             }
         }
     }, [color, disableOutline]);
@@ -54,6 +56,7 @@ export function CustomTextField({ type, color, value, placeholder, limit = Infin
                 case ("blue"): return `-6px 6px 0 ${blue[300]} !important`;
                 case ("green"): return `-6px 6px 0 ${green[300]} !important`;
                 case ("yellow"): return `-6px 6px 0 ${yellow[300]} !important`;
+                case ("zinc"): return `-6px 6px 0 ${grey[700]} !important`;
             }
         }
     }, [color, disableBoxShadow]);
@@ -99,7 +102,7 @@ export function CustomTextField({ type, color, value, placeholder, limit = Infin
                 )}
                 <Stack className="items-center" direction={"row"} spacing={2.5}>
                     <Box className="relative w-full">
-                        <OutlinedInput className={`${INPUT_BG_COLOR} ${type === "text" && FONT_FAMILY} ${TEXT_COLOR} ${outlineStyle} rounded-md! ${limit !== Infinity && 'pr-18!'}`} type={type} value={value} placeholder={placeholder} {...props} onChange={handleInputChange} />
+                        <OutlinedInput className={`${INPUT_BG_COLOR} ${type === "text" && FONT_FAMILY} ${TEXT_COLOR} ${outlineStyle} rounded-md! ${limit !== Infinity && 'pr-18!'}`} type={type} value={value} placeholder={placeholder} readOnly={readOnly} {...props} onChange={handleInputChange} />
                         {limit !== Infinity && (
                             <Typography className={`absolute top-1/2 right-3 -translate-y-1/2 ${FONT_FAMILY} text-sm! text-zinc-500`}>{length} / {limit}</Typography>
                         )}
@@ -127,12 +130,13 @@ type CustomSliderProps = {
     onChangeCommitted?: (event: SyntheticEvent | Event, value: number | number[]) => void
 }
 
-export function CustomSlider({ value, range, color, label, onChange, onChangeCommitted }: CustomInputProps & CustomSliderProps) {
+export function CustomSlider({ value, range, color, label, readOnly = false, onChange, onChangeCommitted }: CustomInputProps & CustomSliderProps) {
     const rail = useMemo(() => {
         switch (color) {
             case ("blue"): return { height: "8px", color: blue[500] };
             case ("green"): return { height: "8px", color: green[500] };
             case ("yellow"): return { height: "8px", color: yellow[500] };
+            case ("zinc"): return { height: "8px", color: grey[500] }
         }
     }, [color]);
     
@@ -141,6 +145,7 @@ export function CustomSlider({ value, range, color, label, onChange, onChangeCom
             case ("blue"): return { height: "8px", color: blue[500] };
             case ("green"): return { height: "8px", color: green[500] };
             case ("yellow"): return { height: "8px", color: yellow[500] };
+            case ("zinc"): return { height: "8px", color: grey[500] }
         }
     }, [color]);
 
@@ -149,6 +154,7 @@ export function CustomSlider({ value, range, color, label, onChange, onChangeCom
             case ("blue"): return { className: `w-3! h-7! rounded-sm! bg-blue-500!` };
             case ("green"): return { className: `w-3! h-7! rounded-sm! bg-green-500!` };
             case ("yellow"): return { className: `w-3! h-7! rounded-sm! bg-yellow-500!` };
+            case ("zinc"): return { className: `w-3! h-7! rounded-sm! bg-zinc-500!` }
         }
     }, [color]);
     
@@ -180,7 +186,7 @@ export function CustomSlider({ value, range, color, label, onChange, onChangeCom
                 <Typography className={`${FONT_FAMILY} ${TEXT_COLOR} font-semibold! text-xl!`}>{label}</Typography>
             )}
             <Stack className="w-full justify-between items-center" direction={"row"} spacing={2}>
-                <Slider min={range[0]} max={range[1]} value={value} {...props} onChange={onChange} onChangeCommitted={onChangeCommitted}/>
+                <Slider min={range[0]} max={range[1]} value={value} disabled={readOnly} {...props} onChange={onChange} onChangeCommitted={onChangeCommitted}/>
                 <Typography className={`w-14! text-center ${FONT_FAMILY} ${TEXT_COLOR} font-semibold! text-xl!`}>{value}</Typography>
             </Stack>
         </FormControl>
@@ -204,6 +210,7 @@ export function CustomSwitch({ checked, color, label, onText = "On", offText = "
             case ("blue"): return "bg-blue-500";
             case ("green"): return "bg-green-500";
             case ("yellow"): return "bg-yellow-500";
+            case ("zinc"): return "bg-zinc-500";
         }
     }, [color]);
 
@@ -212,6 +219,7 @@ export function CustomSwitch({ checked, color, label, onText = "On", offText = "
             case ("blue"): return "outline-blue-500";
             case ("green"): return "outline-green-500";
             case ("yellow"): return "outline-yellow-500";
+            case ("zinc"): return "outline-zinc-500";
         }
     }, [color]);
 
@@ -220,6 +228,7 @@ export function CustomSwitch({ checked, color, label, onText = "On", offText = "
             case ("blue"): return blue[300];
             case ("green"): return green[300];
             case ("yellow"): return yellow[500];
+            case ("zinc"): return grey[700];
         }
     }, [color]);
 

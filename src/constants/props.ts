@@ -13,6 +13,7 @@ export const OUTLINED_INPUT_COMMON_PROPS: OutlinedInputProps = {
         input: {
             sx: {
                 "::-ms-reveal": { display: "none" },
+                '::placeholder': { fontFamily: "Orbitron !important" }
             }
         },
         notchedOutline: {
