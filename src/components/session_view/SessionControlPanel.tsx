@@ -57,7 +57,7 @@ export default function SessionControlPanel() {
 
     const handleUpdatePlayers = () => {
         let currentPlayers: IPlayer[] = [];
-        activeSession?.state.players.forEach(player => {
+        activeSession?.state?.players.forEach(player => {
             if (player.role === "player") {
                 currentPlayers.push(player);
             }

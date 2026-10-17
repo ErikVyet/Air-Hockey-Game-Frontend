@@ -35,7 +35,7 @@ export default function SpectatorControlPanel() {
 
     const handleUpdateSpectators = () => {
         let currentSpectators: IPlayer[] = [];
-        activeSession?.state.players.forEach(player => {
+        activeSession?.state?.players.forEach(player => {
             if (player.role === "spectator") {
                 currentSpectators.push(player);
             }
