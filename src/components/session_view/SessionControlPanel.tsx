@@ -26,7 +26,7 @@ export default function SessionControlPanel() {
 
     const [maxRounds, setMaxRounds] = useState(activeSession?.state.maxRounds ?? 5);
     const [players, setPlayers] = useState<IPlayer[]>([]);
-    const [isReady, setIsReady] = useState(false); 
+    const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
         if (!activeSession) return;
@@ -77,12 +77,11 @@ export default function SessionControlPanel() {
         activeSession?.send(SessionMessage.KICK_PLAYER, targetSessionId);
     };
     const handleLeaveClick = () => {
-        activeSession?.leave(true).then(() => {
-            setSessionViewport(SessionViewport.NONE);
-            setMenuAction(MenuAction.ORIGINAL);
-            setActiveSession(null);
-            navigate("/", { replace: true });
-        });
+        activeSession?.leave(true);
+        setSessionViewport(SessionViewport.NONE);
+        setMenuAction(MenuAction.ORIGINAL);
+        setActiveSession(null);
+        navigate("/", { replace: true });
     };
     const handleReadyChange = () => {
         activeSession?.send(SessionMessage.UPDATE_PLAYER_READY_STATE);
