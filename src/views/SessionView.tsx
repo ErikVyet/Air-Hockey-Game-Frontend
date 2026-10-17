@@ -48,7 +48,7 @@ export default function SessionView() {
     }, [activeSession]);
 
     useEffect(() => {
-        if (activeSession?.state.players) {
+        if (activeSession?.state?.players) {
             const player = activeSession.state.players.get(activeSession.sessionId);
             const isHost = activeSession.sessionId === activeSession.state.hostSessionId;
             switch (player?.role) {
