@@ -63,7 +63,7 @@ export default function SessionView() {
                 default: break;
             }
         }
-    }, [activeSession?.state.players]);
+    }, [activeSession?.state?.players]);
 
     const handleOpenAlert = (error: boolean, message: string) => {
         setIsError(error);
