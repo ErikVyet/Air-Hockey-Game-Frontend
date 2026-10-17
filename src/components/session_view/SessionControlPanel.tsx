@@ -33,7 +33,7 @@ export default function SessionControlPanel() {
 
         handleUpdatePlayers();
 
-        activeSession.onStateChange(state => {
+        const handleStateChange = activeSession.onStateChange(state => {
             // Update max rounds
             setMaxRounds(state.maxRounds);
 
@@ -41,14 +41,17 @@ export default function SessionControlPanel() {
             handleUpdatePlayers();
         });
 
-        activeSession.onLeave(() => {
+        const handleLeave = activeSession.onLeave(() => {
             setSessionViewport(SessionViewport.NONE);
             setMenuAction(MenuAction.ORIGINAL);
             setActiveSession(null);
             navigate("/", { replace: true });
         });
 
-        return () => { activeSession.removeAllListeners(); }
+        return () => { 
+            handleStateChange.clear();
+            handleLeave.clear();
+        }
     }, [activeSession]);
 
     useEffect(() => {
