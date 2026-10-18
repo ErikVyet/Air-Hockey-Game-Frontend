@@ -7,7 +7,9 @@ export enum SessionMessage {
     UPDATE_SCORES = "updateScores",
     UPDATE_ROUND = "updateRound",
     UPDATE_MAX_SPECTATORS = "updateMaxSpectator",
+    UPDATE_PLAYER_NAME = "updatePlayerName",
     UPDATE_PLAYER_ROLE = "updatePlayerRole",
     UPDATE_PLAYER_READY_STATE = "updatePlayerReadyState",
-    KICK_PLAYER = "kickPlayer"
+    KICK_PLAYER = "kickPlayer",
+    CAUGHT_ERROR = "caughtError"
 }

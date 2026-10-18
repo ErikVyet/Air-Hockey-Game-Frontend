@@ -9,6 +9,8 @@ import { SessionViewport } from "../enums/SessionViewport";
 import SessionControlPanel from "../components/session_view/SessionControlPanel";
 import { MenuAction } from "../enums/MenuAction";
 import SpectatorControlPanel from "../components/session_view/SpectatorControlPanel";
+import { SessionMessage } from "../enums/SessionMessage";
+import type { IErrorMessage } from "../interfaces/IErrorMessage";
 
 export default function SessionView() {
     const sessionContext = useContext(SessionContext);
@@ -52,6 +54,10 @@ export default function SessionView() {
         activeSession.onStateChange(() => {
             // Update player's view
             handleUpdateSessionView();
+        });
+
+        activeSession.onMessage(SessionMessage.CAUGHT_ERROR, ({ message }: IErrorMessage) => {
+            handleOpenAlert(true, message);
         });
 
         return () => {

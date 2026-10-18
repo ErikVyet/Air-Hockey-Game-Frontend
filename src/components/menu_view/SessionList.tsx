@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState, type ChangeEvent } from "react";
 import { useMotionValueEvent, useScroll } from "motion/react";
-import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, Snackbar, Stack, Typography } from "@mui/material";
+import { Alert, Box, Button, CircularProgress, List, ListItem, Snackbar, Stack, Typography } from "@mui/material";
 import { CustomTextField } from "../common/CustomInput";
 import CustomScrollbar from "../common/CustomScrollbar";
 import { green, grey } from "@mui/material/colors";
@@ -12,6 +12,7 @@ import { BLUE_STRIKER_INITIAL_POSITION } from "../../constants/scene";
 import { SessionContext } from "../../contexts/SessionContext";
 import { useNavigate } from "react-router-dom";
 import { SNACKBAR_COMMON_PROPS } from "../../constants/props";
+import CustomDialogWithTextField from "../common/CustomDialogWithTextField";
 
 export default function SessionList() {
     const sessionContext = useContext(SessionContext);
@@ -132,7 +133,7 @@ export default function SessionList() {
                                                 {session.metadata?.hasPassword && (<LockOutlined className="size-4! text-yellow-500"/>)}
                                             </Stack>
                                         </Stack>
-                                        <Button className={`${FONT_FAMILY} ${TEXT_COLOR} normal-case! bg-zinc-900! outline-2! outline-zinc-600!`} variant={"contained"} size={"small"} sx={{ boxShadow: `-5px 5px 0 ${grey[800]}` }} disabled={isJoining} disableRipple onClick={() => session.metadata?.hasPassword ? handleOpenPasswordDialog(session.roomId) : handleJoinSessionWithoutPassword(session.roomId)}>Join</Button>
+                                        <Button className={`${FONT_FAMILY} ${TEXT_COLOR} normal-case! bg-zinc-900! outline-2! outline-zinc-600!`} variant={"contained"} size={"small"} sx={{ boxShadow: `-5px 5px 0 ${grey[800]}` }} disabled={isJoining || session.locked} disableRipple onClick={() => session.metadata?.hasPassword ? handleOpenPasswordDialog(session.roomId) : handleJoinSessionWithoutPassword(session.roomId)}>Join</Button>
                                     </ListItem>
                                 )}
                             </List>
@@ -141,16 +142,7 @@ export default function SessionList() {
                     <CustomScrollbar value={scrollProgress} color={"green"} onChange={handleSessionListScrollbarSlide} />
                 </Stack>
             </Stack>
-            <Dialog open={openPasswordDialog} slotProps={{ paper: { className: "px-2.5 bg-zinc-900! outline-3! outline-zinc-800!" } }} sx={{ boxShadow: `-6px 6px 0 ${grey[700]}` }}>
-                <DialogTitle className={`${FONT_FAMILY} ${TEXT_COLOR}`}>Session Password</DialogTitle>
-                <DialogContent className="py-2!">
-                    <CustomTextField value={password} color={"zinc"} type={"password"} placeholder={"Enter password"} limit={20} onChange={handlePasswordChange}/>
-                </DialogContent>
-                <DialogActions className="py-4.5! gap-4">
-                    <Button className={`${FONT_FAMILY} ${TEXT_COLOR} normal-case! bg-zinc-900! outline-2! outline-zinc-600!`} variant={"contained"} size={"small"} sx={{ boxShadow: `-5px 5px 0 ${grey[800]}` }} loading={isJoining} disableRipple onClick={handleJoinSessionWithPassword}>Join</Button>
-                    <Button className={`${FONT_FAMILY} ${TEXT_COLOR} normal-case! bg-zinc-900! outline-2! outline-zinc-600!`} variant={"contained"} size={"small"} sx={{ boxShadow: `-5px 5px 0 ${grey[800]}` }} disabled={isJoining} disableRipple onClick={handleClosePasswordDialog}>Cancel</Button>
-                </DialogActions>
-            </Dialog>
+            <CustomDialogWithTextField open={openPasswordDialog} title={"Session Password"} placeholder={"Enter password"} textFieldType={"password"} textFieldValue={password} textFieldOnChange={handlePasswordChange} positiveLabel={"Join"} negativeLabel={"Cancel"} positiveAction={handleJoinSessionWithPassword} negativeAction={handleClosePasswordDialog} loading={isJoining}/>
             <Snackbar open={openAlert} {...SNACKBAR_COMMON_PROPS} onClose={handleCloseAlert}>
                 <Alert severity={"error"} variant={"filled"} onClose={handleCloseAlert}>{message}</Alert>
             </Snackbar>
