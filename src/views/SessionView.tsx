@@ -44,27 +44,37 @@ export default function SessionView() {
                 });
             }
         }, 100);
-        return () => { clearTimeout(timeout); }
+
+        if (!activeSession) return;
+
+        handleUpdateSessionView();
+
+        activeSession.onStateChange(() => {
+            // Update player's view
+            handleUpdateSessionView();
+        });
+
+        return () => {
+            clearTimeout(timeout);
+            activeSession.removeAllListeners();
+        }
     }, [activeSession]);
 
-    useEffect(() => {
-        if (activeSession?.state?.players) {
-            const player = activeSession.state.players.get(activeSession.sessionId);
-            const isHost = activeSession.sessionId === activeSession.state.hostSessionId;
-            switch (player?.role) {
-                case ("player"): {
-                    setSessionViewport(isHost ? SessionViewport.PLAYER_1 : SessionViewport.PLAYER_2);
-                    break;
-                }
-                case ("spectator"): {
-                    setSessionViewport(SessionViewport.SPECTATOR);
-                    break;
-                }
-                default: break;
+    const handleUpdateSessionView = () => {
+        const player = activeSession?.state?.players.get(activeSession.sessionId);
+        const isHost = activeSession?.sessionId === activeSession?.state?.hostSessionId;
+        switch (player?.role) {
+            case ("player"): {
+                setSessionViewport(isHost ? SessionViewport.PLAYER_1 : SessionViewport.PLAYER_2);
+                break;
             }
+            case ("spectator"): {
+                setSessionViewport(SessionViewport.SPECTATOR);
+                break;
+            }
+            default: break;
         }
-    }, [activeSession?.state?.players]);
-
+    };
     const handleOpenAlert = (error: boolean, message: string) => {
         setIsError(error);
         setMessage(message);
@@ -75,8 +85,8 @@ export default function SessionView() {
     return (
         <>
             <Stack className="w-full h-screen justify-between items-center" direction={"row"}>
-                <SessionControlPanel/>
-                <SpectatorControlPanel/>
+                <SessionControlPanel />
+                <SpectatorControlPanel />
             </Stack>
             <Portal>
                 <Snackbar open={openAlert} {...SNACKBAR_COMMON_PROPS} onClose={handleCloseAlert}>

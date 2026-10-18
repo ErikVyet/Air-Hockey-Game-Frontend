@@ -34,6 +34,7 @@ export default function SessionList() {
     const [password, setPassword] = useState("");
     const [openAlert, setOpenAlert] = useState(false);
     const [message, setMessage] = useState("");
+    const [isJoining, setIsJoining] = useState(false);
 
     const { scrollYProgress } = useScroll({ container: sessionListRef });
 
@@ -82,6 +83,7 @@ export default function SessionList() {
         setOpenAlert(false);
     };
     const handleJoinSessionWithoutPassword = (sessionId: string) => {
+        setIsJoining(true);
         client.joinById(sessionId, {
             position: BLUE_STRIKER_INITIAL_POSITION,
             isHost: false
@@ -90,9 +92,12 @@ export default function SessionList() {
             navigate(`/session/${session.reconnectionToken}`, { replace: true });
         }).catch(reason => {
             handleOpenAlert((reason as Error).message ?? "Failed to connect to session");
+        }).finally(() => {
+            setIsJoining(false);
         });
     };
     const handleJoinSessionWithPassword = () => {
+        setIsJoining(true);
         client.joinById(targetSessionId, {
             password,
             position: BLUE_STRIKER_INITIAL_POSITION,
@@ -102,6 +107,8 @@ export default function SessionList() {
             navigate(`/session/${session.reconnectionToken}`, { replace: true });
         }).catch(reason => {
             handleOpenAlert((reason as Error).message ?? "Failed to connect to session");
+        }).finally(() => {
+            setIsJoining(false);
         });
     };
 
@@ -125,7 +132,7 @@ export default function SessionList() {
                                                 {session.metadata?.hasPassword && (<LockOutlined className="size-4! text-yellow-500"/>)}
                                             </Stack>
                                         </Stack>
-                                        <Button className={`${FONT_FAMILY} ${TEXT_COLOR} normal-case! bg-zinc-900! outline-2! outline-zinc-600!`} variant={"contained"} size={"small"} sx={{ boxShadow: `-5px 5px 0 ${grey[800]}` }} disableRipple onClick={() => session.metadata?.hasPassword ? handleOpenPasswordDialog(session.roomId) : handleJoinSessionWithoutPassword(session.roomId)}>Join</Button>
+                                        <Button className={`${FONT_FAMILY} ${TEXT_COLOR} normal-case! bg-zinc-900! outline-2! outline-zinc-600!`} variant={"contained"} size={"small"} sx={{ boxShadow: `-5px 5px 0 ${grey[800]}` }} disabled={isJoining} disableRipple onClick={() => session.metadata?.hasPassword ? handleOpenPasswordDialog(session.roomId) : handleJoinSessionWithoutPassword(session.roomId)}>Join</Button>
                                     </ListItem>
                                 )}
                             </List>
@@ -140,8 +147,8 @@ export default function SessionList() {
                     <CustomTextField value={password} color={"zinc"} type={"password"} placeholder={"Enter password"} limit={20} onChange={handlePasswordChange}/>
                 </DialogContent>
                 <DialogActions className="py-4.5! gap-4">
-                    <Button className={`${FONT_FAMILY} ${TEXT_COLOR} normal-case! bg-zinc-900! outline-2! outline-zinc-600!`} variant={"contained"} size={"small"} sx={{ boxShadow: `-5px 5px 0 ${grey[800]}` }} disableRipple onClick={handleJoinSessionWithPassword}>Join</Button>
-                    <Button className={`${FONT_FAMILY} ${TEXT_COLOR} normal-case! bg-zinc-900! outline-2! outline-zinc-600!`} variant={"contained"} size={"small"} sx={{ boxShadow: `-5px 5px 0 ${grey[800]}` }} disableRipple onClick={handleClosePasswordDialog}>Cancel</Button>
+                    <Button className={`${FONT_FAMILY} ${TEXT_COLOR} normal-case! bg-zinc-900! outline-2! outline-zinc-600!`} variant={"contained"} size={"small"} sx={{ boxShadow: `-5px 5px 0 ${grey[800]}` }} loading={isJoining} disableRipple onClick={handleJoinSessionWithPassword}>Join</Button>
+                    <Button className={`${FONT_FAMILY} ${TEXT_COLOR} normal-case! bg-zinc-900! outline-2! outline-zinc-600!`} variant={"contained"} size={"small"} sx={{ boxShadow: `-5px 5px 0 ${grey[800]}` }} disabled={isJoining} disableRipple onClick={handleClosePasswordDialog}>Cancel</Button>
                 </DialogActions>
             </Dialog>
             <Snackbar open={openAlert} {...SNACKBAR_COMMON_PROPS} onClose={handleCloseAlert}>
