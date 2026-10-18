@@ -32,8 +32,6 @@ export default function SpectatorControlPanel() {
             // Update spectators
             handleUpdateSpectators();
         });
-
-        return () => { activeSession.removeAllListeners(); }
     }, [activeSession]);
 
     const handleOpenNameDialog = () => {

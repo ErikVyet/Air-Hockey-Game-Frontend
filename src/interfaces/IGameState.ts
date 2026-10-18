@@ -1,3 +1,4 @@
+import type { IMessage } from "./IMessage"
 import type { IPlayer } from "./IPlayer"
 
 export interface IGameState {
@@ -10,5 +11,5 @@ export interface IGameState {
     maxRounds: number,
     puckPosition: [number, number, number],
     hasStarted: boolean,
-    messages: string[]
+    messages: IMessage[]
 }

@@ -22,16 +22,18 @@ type CustomTextFieldProps = {
     limit?: number,
     tooltip?: string,
     copiable?: boolean,
+    validation?: "default" | "none",
     disableBoxShadow?: boolean,
     disableOutline?: boolean,
     onChange: (event: ChangeEvent<HTMLInputElement>) => void
 }
 
-export function CustomTextField({ type, color, value, placeholder, limit = Infinity, label, tooltip, copiable = false, disableBoxShadow = false, disableOutline = false, readOnly = false, onChange }: CustomInputProps & CustomTextFieldProps) {
-    const [length, setLength] = useState(value?.length ?? 0);
+export function CustomTextField({ type, color, value, placeholder, limit = Infinity, label, tooltip, copiable = false, validation = "default", disableBoxShadow = false, disableOutline = false, readOnly = false, onChange }: CustomInputProps & CustomTextFieldProps) {
     const [openAlert, setOpenAlert] = useState(false);
     const [message, setMessage] = useState("");
     const [isError, setIsError] = useState(false);
+
+    const length = useMemo(() => value?.length ?? 0, [value]);
 
     const outlineStyle = useMemo(() => {
         if (disableOutline) {
@@ -68,8 +70,7 @@ export function CustomTextField({ type, color, value, placeholder, limit = Infin
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         const value = event.currentTarget.value;
         const validator = type === "text" ? COMMON_INPUT_VALIDATOR : PASSWORD_INPUT_VALIDATOR;
-        if (validator.test(value) && value.length <= limit) {
-            setLength(value.length);
+        if ((validation === "none" || validator.test(value)) && value.length <= limit) {
             onChange(event);
         }
     };
