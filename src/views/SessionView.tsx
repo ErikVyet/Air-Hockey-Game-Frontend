@@ -61,7 +61,7 @@ export default function SessionView() {
     }, [activeSession]);
 
     const handleUpdateSessionView = () => {
-        const player = activeSession?.state?.players.get(activeSession.sessionId);
+        const player = activeSession?.state?.players?.get(activeSession.sessionId);
         const isHost = activeSession?.sessionId === activeSession?.state?.hostSessionId;
         switch (player?.role) {
             case ("player"): {
