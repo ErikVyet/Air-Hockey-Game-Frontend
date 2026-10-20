@@ -68,6 +68,10 @@ export function DynamicGameScene() {
                 }
             });
         });
+
+        activeSession.onReconnect(() => {
+            setCountDown(0);
+        });
     }, [activeSession]);
 
     useEffect(() => {
