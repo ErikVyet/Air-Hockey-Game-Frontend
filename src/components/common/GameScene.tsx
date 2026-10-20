@@ -48,12 +48,14 @@ export function DynamicGameScene() {
 
         handleUpdateControlledStriker();
 
-        setCountDown(activeSession?.state?.countDown ?? 5);
-
         activeSession.onStateChange(state => {
             // Update the count down
             setCountDown(state.countDown);
-            console.log(state.countDown);
+
+            // Update controlled striker
+            if (controlledStriker === "none") {
+                handleUpdateControlledStriker();
+            }
 
             // Update opponent's striker position
             state.players.forEach(player => {
