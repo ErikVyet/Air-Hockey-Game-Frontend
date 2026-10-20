@@ -26,7 +26,7 @@ export const OUTLINED_INPUT_COMMON_PROPS: OutlinedInputProps = {
 };
 
 export const SNACKBAR_COMMON_PROPS: SnackbarProps = {
-    autoHideDuration: 3000,
+    autoHideDuration: 2000,
     anchorOrigin: {
         horizontal: "right",
         vertical: "bottom"

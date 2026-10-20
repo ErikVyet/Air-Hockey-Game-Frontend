@@ -2,7 +2,7 @@ import { Avatar, Box, Grid, IconButton, List, ListItem, Stack, Typography } from
 import { grey } from "@mui/material/colors";
 import { FONT_FAMILY, TEXT_COLOR } from "../../constants/style";
 import { useContext, useEffect, useRef, useState, type ChangeEvent } from "react";
-import { CustomTextField } from "../common/CustomInput";
+import { CustomTextField } from "./CustomInput";
 import { Person, Send } from "@mui/icons-material";
 import { SessionContext } from "../../contexts/SessionContext";
 import { SessionMessage } from "../../enums/SessionMessage";
@@ -53,9 +53,34 @@ export default function ChatPanel() {
     const { activeSession } = sessionContext;
 
     const messageListRef = useRef<HTMLUListElement>(null!);
+    const textFieldRef = useRef<HTMLInputElement>(null!);
+    const submitButtonRef = useRef<HTMLButtonElement>(null!);
 
     const [content, setContent] = useState("");
     const [messages, setMessages] = useState<IMessage[]>([]);
+
+    useEffect(() => {
+        const handleKeyPress = (event: KeyboardEvent) => {
+            switch(event.key) {
+                case ("t"): {
+                    textFieldRef.current?.focus();
+                    break;
+                }
+                case ("Enter"): {
+                    submitButtonRef.current?.click();
+                    textFieldRef.current?.blur();
+                    break;
+                }
+                default: break;
+            }
+        };
+
+        window.addEventListener("keypress", handleKeyPress);
+
+        return () => {
+            window.removeEventListener("keypress", handleKeyPress);
+        };
+    }, []);
 
     useEffect(() => {
         const messageList = messageListRef.current;
@@ -81,6 +106,8 @@ export default function ChatPanel() {
         setMessages(activeSession?.state?.messages ? [...activeSession?.state?.messages] : []);
     };
     const handleMessageSubmit = () => {
+        if (content.trim() === "") return;
+
         activeSession?.send(SessionMessage.SEND_MESSAGE, content);
         setContent("");
         
@@ -104,8 +131,8 @@ export default function ChatPanel() {
                     )}
                 </List>
                 <Stack className="justify-between items-center" direction={"row"} spacing={3}>
-                    <CustomTextField value={content} type={"text"} color={"zinc"} placeholder={"Enter message..."} limit={50} validation={"none"} disableBoxShadow onChange={handleContentChange} />
-                    <IconButton className="bg-zinc-800! outline-2! outline-zinc-500!" onClick={handleMessageSubmit}>
+                    <CustomTextField ref={textFieldRef} value={content} type={"text"} color={"zinc"} placeholder={"Enter message..."} limit={50} validation={"none"} disableBoxShadow onChange={handleContentChange} />
+                    <IconButton className="bg-zinc-800! outline-2! outline-zinc-500!" ref={submitButtonRef} onClick={handleMessageSubmit}>
                         <Send className={`size-4! ${TEXT_COLOR}`} />
                     </IconButton>
                 </Stack>

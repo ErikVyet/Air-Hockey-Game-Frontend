@@ -1,5 +1,5 @@
 import { Alert, Box, FormControl, IconButton, OutlinedInput, Slider, Snackbar, Stack, Tooltip, Typography, type OutlinedInputProps, type SliderProps } from "@mui/material";
-import { useMemo, useState, type ChangeEvent, type SyntheticEvent } from "react";
+import { useMemo, useState, type ChangeEvent, type Ref, type SyntheticEvent } from "react";
 import { FONT_FAMILY, INPUT_BG_COLOR, TEXT_COLOR } from "../../constants/style";
 import { OUTLINED_INPUT_COMMON_PROPS, SNACKBAR_COMMON_PROPS } from "../../constants/props";
 import { COMMON_INPUT_VALIDATOR, PASSWORD_INPUT_VALIDATOR } from "../../validators/input";
@@ -18,6 +18,7 @@ type CustomInputProps = {
 type CustomTextFieldProps = {
     type: "text" | "password",
     value: string,
+    ref?: Ref<HTMLInputElement>,
     placeholder?: string,
     limit?: number,
     tooltip?: string,
@@ -28,7 +29,7 @@ type CustomTextFieldProps = {
     onChange: (event: ChangeEvent<HTMLInputElement>) => void
 }
 
-export function CustomTextField({ type, color, value, placeholder, limit = Infinity, label, tooltip, copiable = false, validation = "default", disableBoxShadow = false, disableOutline = false, readOnly = false, onChange }: CustomInputProps & CustomTextFieldProps) {
+export function CustomTextField({ type, color, value, ref, placeholder, limit = Infinity, label, tooltip, copiable = false, validation = "default", disableBoxShadow = false, disableOutline = false, readOnly = false, onChange }: CustomInputProps & CustomTextFieldProps) {
     const [openAlert, setOpenAlert] = useState(false);
     const [message, setMessage] = useState("");
     const [isError, setIsError] = useState(false);
@@ -103,7 +104,7 @@ export function CustomTextField({ type, color, value, placeholder, limit = Infin
                 )}
                 <Stack className="items-center" direction={"row"} spacing={2.5}>
                     <Box className="relative w-full">
-                        <OutlinedInput className={`${INPUT_BG_COLOR} ${type === "text" && FONT_FAMILY} ${TEXT_COLOR} ${outlineStyle} rounded-md! ${limit !== Infinity && 'pr-18!'}`} type={type} value={value} placeholder={placeholder} readOnly={readOnly} {...props} onChange={handleInputChange} />
+                        <OutlinedInput className={`${INPUT_BG_COLOR} ${type === "text" && FONT_FAMILY} ${TEXT_COLOR} ${outlineStyle} rounded-md! ${limit !== Infinity && 'pr-18!'}`} inputRef={ref} type={type} value={value} placeholder={placeholder} readOnly={readOnly} {...props} onChange={handleInputChange} />
                         {limit !== Infinity && (
                             <Typography className={`absolute top-1/2 right-3 -translate-y-1/2 ${FONT_FAMILY} text-sm! text-zinc-500`}>{length} / {limit}</Typography>
                         )}

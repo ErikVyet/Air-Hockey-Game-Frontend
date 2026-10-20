@@ -108,7 +108,7 @@ export default function SessionControlPanel() {
         setSessionViewport(SessionViewport.PLAYER_2);
     };
     const handleStartGame = () => {
-
+        activeSession?.send(SessionMessage.START_GAME);
     };
 
     return (

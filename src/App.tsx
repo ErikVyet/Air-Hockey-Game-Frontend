@@ -7,6 +7,8 @@ import SessionView from "./views/SessionView";
 import { SessionContext } from "./contexts/SessionContext";
 import type { Room } from "@colyseus/sdk";
 import type { IGameState } from "./interfaces/IGameState";
+import { GameLayout } from "./layouts/GameLayout";
+import GameView from "./views/GameView";
 
 export default function App() {
     const [masterVolumn, setMasterVolumn] = useState(() => {
@@ -15,6 +17,17 @@ export default function App() {
         if (isNaN(value) || !tempValue) {
             localStorage.setItem("master-volumn", `${100}`);
             return 100;
+        }
+        else {
+            return value;
+        }
+    });
+    const [fps, setFps] = useState(() => {
+        const tempValue = localStorage.getItem("fps");
+        const value = Number(tempValue);
+        if (isNaN(value) || !tempValue) {
+            localStorage.setItem("fps", `${60}`);
+            return 60;
         }
         else {
             return value;
@@ -53,13 +66,16 @@ export default function App() {
                     <Route index element={<MenuView/>}/>
                     <Route path={"session/:reconnectionToken"} element={<SessionView/>}/>
                 </Route>
+                <Route element={<GameLayout/>}>
+                    <Route path={"game/:reconnectionToken"} element={<GameView/>}/>
+                </Route>
             </Route>
         )
     );
 
     return (
         <SessionContext.Provider value={{ activeSession, setActiveSession }}>
-            <SettingContext.Provider value={{ masterVolumn, setMasterVolumn, fullScreen, setFullScreen, vrMode, setVrMode, arMode, setArMode }}>
+            <SettingContext.Provider value={{ masterVolumn, setMasterVolumn, fps, setFps, fullScreen, setFullScreen, vrMode, setVrMode, arMode, setArMode }}>
                 <RouterProvider router={browserRouter}/>
             </SettingContext.Provider>
         </SessionContext.Provider>

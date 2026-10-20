@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import {  } from '@react-three/postprocessing';
 import { Outlet } from 'react-router-dom';
 import { CameraControls, CameraControlsImpl, Loader, useProgress } from '@react-three/drei';
-import GameScene from '../components/common/GameScene';
+import { FixedGameScene }from '../components/common/GameScene';
 import { useEffect, useRef, useState } from 'react';
 import { MenuAction } from '../enums/MenuAction';
 import { MenuContext } from '../contexts/MenuContext';
@@ -71,7 +71,7 @@ export default function MenuLayout() {
                     <Canvas className="absolute! -z-10 top-0 left-0 size-full" camera={{ position: DEFAULT_CAMERA_POSITION, fov: 50 }} shadows>
                         <ambientLight position={[1, 1, 1]} intensity={2}/>
                         <CameraControls ref={cameraControlsRef} smoothTime={CAMERA_TRANSITION_DURATION}/>
-                        <GameScene/>
+                        <FixedGameScene/>
                     </Canvas>
                     <Outlet/>
                 </MenuContext.Provider>

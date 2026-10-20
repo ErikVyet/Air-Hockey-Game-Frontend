@@ -13,7 +13,7 @@ import { SessionMessage } from "../enums/SessionMessage";
 import type { IErrorMessage } from "../interfaces/IErrorMessage";
 import { Chat, Visibility } from "@mui/icons-material";
 import { TEXT_COLOR } from "../constants/style";
-import ChatPanel from "../components/session_view/ChatPanel";
+import ChatPanel from "../components/common/ChatPanel";
 import { motion } from "motion/react";
 
 export default function SessionView() {
@@ -59,6 +59,10 @@ export default function SessionView() {
         handleUpdateSessionView();
 
         activeSession.onStateChange(state => {
+            if (state.hasStarted) {
+                navigate(`/game/${reconnectionToken}`, { replace: true });
+            }
+
             // Update player's view
             handleUpdateSessionView();
 

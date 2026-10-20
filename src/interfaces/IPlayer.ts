@@ -4,7 +4,7 @@ export interface IPlayer {
     name: string,
     role: "player" | "spectator",
     position: [x: number, y: number, z: number],
-    scores: number[],
+    score: number,
     isHost: boolean,
     isReady: boolean
 }

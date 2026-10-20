@@ -1,17 +1,21 @@
 import { ActiveCollisionTypes } from "@dimforge/rapier3d-compat";
-import { Box, Stack } from "@mui/material";
+// import { Box, Stack } from "@mui/material";
 import { purple } from "@mui/material/colors";
-import { Html } from "@react-three/drei";
+// import { Html } from "@react-three/drei";
 import { RigidBody } from "@react-three/rapier";
-import { useMemo } from "react";
-import { ExtrudeGeometry, Path, Shape, type ExtrudeGeometryOptions } from "three";
+import { useMemo, type Ref } from "react";
+import { ExtrudeGeometry, Mesh, Path, Shape, type ExtrudeGeometryOptions } from "three";
 
-function HockeyTableSurface() {
+type HockeyTableSurfaceProps = {
+    ref?: Ref<Mesh>
+}
+
+function HockeyTableSurface({ ref }: HockeyTableSurfaceProps) {
     return (
-        <mesh>
+        <mesh ref={ref}>
             <boxGeometry args={[1, 0.1, 2]} />
             <meshStandardMaterial color={"white"} />
-            <Html className="w-66.75 h-133.5 select-none pointer-events-none" position={[0, 0.05001, 0]} rotation={[Math.PI / 2, 0, 0]} distanceFactor={1.5} wrapperClass={"table-surface"} occlude={"blending"} transform>
+            {/* <Html className="w-66.75 h-133.5 select-none pointer-events-none" position={[0, 0.05001, 0]} rotation={[Math.PI / 2, 0, 0]} distanceFactor={1.5} wrapperClass={"table-surface"} occlude={"blending"} transform>
                 <Stack className="size-full bg-zinc-200 justify-center items-center gap-15 rounded-4xl">
                     <Stack className="gap-20" direction={"row"}>
                         <Box className="size-15 border-2 border-zinc-900 rounded-full" />
@@ -30,7 +34,7 @@ function HockeyTableSurface() {
                         <Box className="size-15 border-2 border-zinc-900 rounded-full" />
                     </Stack>
                 </Stack>
-            </Html>
+            </Html> */}
         </mesh>
     );
 }
@@ -123,13 +127,16 @@ function HockeyTableWall({ surfaceWidth = 1, surfaceLength = 2, wallThickness = 
     );
 }
 
-export default function HockeyTable() {
+type HockeyTableProps = {
+    surfaceRef?: Ref<Mesh>
+}
 
+export default function HockeyTable({ surfaceRef }: HockeyTableProps) {
     return (
-        <group>
+        <group position={[0, -0.082, 0]}>
             <RigidBody type={"fixed"} colliders={"trimesh"} activeCollisionTypes={ActiveCollisionTypes.DYNAMIC_FIXED}>
                 <group>
-                    <HockeyTableSurface />
+                    <HockeyTableSurface ref={surfaceRef}/>
                     <HockeyTableWall />
                 </group>
             </RigidBody>

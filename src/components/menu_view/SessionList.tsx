@@ -90,7 +90,12 @@ export default function SessionList() {
             isHost: false
         }).then(session => {
             setActiveSession(session);
-            navigate(`/session/${session.reconnectionToken}`, { replace: true });
+            if (session.state.hasStarted) {
+                navigate(`/game/${session.reconnectionToken}`, { replace: true });
+            }
+            else {
+                navigate(`/session/${session.reconnectionToken}`, { replace: true });
+            }
         }).catch(reason => {
             handleOpenAlert((reason as Error).message ?? "Failed to connect to session");
         }).finally(() => {

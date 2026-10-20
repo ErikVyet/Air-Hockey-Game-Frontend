@@ -11,5 +11,6 @@ export interface IGameState {
     maxRounds: number,
     puckPosition: [number, number, number],
     hasStarted: boolean,
+    countDown: number,
     messages: IMessage[]
 }

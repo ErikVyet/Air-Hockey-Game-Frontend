@@ -4,7 +4,7 @@ import { useContext, useState, type ChangeEvent } from "react";
 import { CustomSlider, CustomTextField } from "../common/CustomInput";
 import { blue, grey } from "@mui/material/colors";
 import { motion } from "motion/react";
-import { CAMERA_TRANSITION_DURATION, RED_STRIKER_CAMERA_POSITION } from "../../constants/scene";
+import { CAMERA_TRANSITION_DURATION, RED_STRIKER_INITIAL_POSITION } from "../../constants/scene";
 import { MenuContext } from "../../contexts/MenuContext";
 import { MenuAction } from "../../enums/MenuAction";
 import useClient from "../../hooks/useClient";
@@ -44,7 +44,7 @@ export default function Hosting() {
             client.create("session", {
                 sessionName,
                 password: password === "" ? undefined : password,
-                position: RED_STRIKER_CAMERA_POSITION,
+                position: RED_STRIKER_INITIAL_POSITION,
                 spectatorCount: spectators,
                 isHost: true
             }).then(session => {

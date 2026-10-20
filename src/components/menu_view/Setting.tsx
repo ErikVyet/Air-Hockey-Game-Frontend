@@ -11,7 +11,7 @@ import { CustomSlider, CustomSwitch } from "../common/CustomInput";
 export default function Setting() {
     const settingContext = useContext(SettingContext);
     if (!settingContext) return null;
-    const { masterVolumn, setMasterVolumn, fullScreen, setFullScreen, vrMode, setVrMode, arMode, setArMode } = settingContext;
+    const { masterVolumn, setMasterVolumn, fps, setFps, fullScreen, setFullScreen, vrMode, setVrMode, arMode, setArMode } = settingContext;
 
     const menuContext = useContext(MenuContext);
     if (!menuContext) return null;
@@ -19,6 +19,8 @@ export default function Setting() {
 
     const handleMasterVolumnChange = (_event: Event, value: number | number[], _activeThumb: number) => setMasterVolumn(value as number);
     const handleMasterVolumnChangeCommitted = (_event: SyntheticEvent | Event, value: number | number[]) => localStorage.setItem("master-volumn", value.toString());
+    const handleFpsChange = (_event: Event, value: number | number[], _activeThumb: number) => setFps(value as number);
+    const handleFpsChangeCommitted = (_event: SyntheticEvent | Event, value: number | number[]) => localStorage.setItem("fps", value.toString());
     const handleFullScreenChange = () => setFullScreen(prev => !prev);
     const handleVrModeChange = () => setVrMode(prev => !prev);
     const handleArModeChange = () => setArMode(prev => !prev);
@@ -30,6 +32,7 @@ export default function Setting() {
             <Stack className="w-full justify-center items-center" spacing={4}>
                 <Stack className="w-full justify-center items-center" spacing={3}>
                     <CustomSlider value={masterVolumn} range={[0, 100]} color={"yellow"} label={"Master Volumn"} onChange={handleMasterVolumnChange} onChangeCommitted={handleMasterVolumnChangeCommitted}/>
+                    <CustomSlider value={fps} range={[30, 120]} color={"yellow"} label={"Frame Rate"} onChange={handleFpsChange} onChangeCommitted={handleFpsChangeCommitted}/>
                     <CustomSwitch checked={fullScreen} color={"yellow"} label={"Fullscreen"} onChange={handleFullScreenChange}/>
                     <CustomSwitch checked={vrMode} color={"yellow"} label={"VR Mode"} onChange={handleVrModeChange}/>
                     <CustomSwitch checked={arMode} color={"yellow"} label={"AR Mode"} onChange={handleArModeChange}/>
