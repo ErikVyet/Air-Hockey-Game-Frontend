@@ -56,13 +56,13 @@ export function DynamicGameScene() {
             state.players.forEach(player => {
                 if (player.role !== "player") return;
 
-                if (player.isHost && player.position) {
-                    currentRedStrikerPositionRef.current?.fromArray(player.position);
-                    redStrikerRef.current?.setNextKinematicTranslation(currentRedStrikerPositionRef.current);
-                } 
-                else if (!player.isHost && player.position) {
+                if (player.isHost && player.position && controlledStriker === "red") {
                     currentBlueStrikerPositionRef.current?.fromArray(player.position);
                     blueStrikerRef.current?.setNextKinematicTranslation(currentBlueStrikerPositionRef.current);
+                } 
+                else if (!player.isHost && player.position && controlledStriker === "blue") {
+                    currentRedStrikerPositionRef.current?.fromArray(player.position);
+                    redStrikerRef.current?.setNextKinematicTranslation(currentRedStrikerPositionRef.current);
                 }
             });
         });
