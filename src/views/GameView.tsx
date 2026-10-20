@@ -51,9 +51,6 @@ export default function GameView() {
         activeSession.onStateChange(state => {
             // Update count down
             setCountDown(state.countDown);
-
-            // Update player's view
-            handleUpdatePlayerView();
         });
 
         return () => { 
@@ -107,7 +104,7 @@ export default function GameView() {
             )}
             <Canvas className="w-full h-screen!" camera={{ position: DEFAULT_CAMERA_POSITION, fov: 50 }} shadows>
                 <ambientLight position={[1, 1, 1]} intensity={2} />
-                <CameraControls ref={(node) => { cameraControlsRef.current = node!; if (node) setIsControlsReady(true); }} smoothTime={CAMERA_TRANSITION_DURATION} enabled={false}/>
+                <CameraControls ref={(node) => { cameraControlsRef.current = node!; if (node) setIsControlsReady(true); handleUpdatePlayerView(); }} smoothTime={CAMERA_TRANSITION_DURATION} enabled={false}/>
                 <DynamicGameScene />
             </Canvas>
             <Snackbar open={openAlert} {...SNACKBAR_COMMON_PROPS} onClose={handleCloseAlert}>
