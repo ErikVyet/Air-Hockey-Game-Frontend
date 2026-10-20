@@ -35,6 +35,7 @@ export default function GameView() {
             if (!activeSession && reconnectionToken) {
                 client.reconnect(reconnectionToken).then(session => {
                     setActiveSession(session);
+                    setCountDown(0);
                     handleOpenAlert(false, "Successfully reconnected to session");
                     navigate(`/game/${session.reconnectionToken}`, { replace: true });
                 }).catch(() => {
