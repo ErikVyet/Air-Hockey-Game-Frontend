@@ -46,6 +46,8 @@ export default function GameView() {
 
         if (!activeSession) return;
 
+        handleUpdatePlayerView();
+
         activeSession.onStateChange(state => {
             // Update count down
             setCountDown(state.countDown);
