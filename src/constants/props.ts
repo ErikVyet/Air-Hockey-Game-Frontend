@@ -1,4 +1,6 @@
+import { ActiveCollisionTypes } from "@dimforge/rapier3d-compat";
 import type { OutlinedInputProps, SnackbarProps } from "@mui/material";
+import type { RigidBodyProps } from "@react-three/rapier";
 
 export const MENU_ACTION_BUTTON_ANIMATION_DELAY = 0.4;
 
@@ -32,4 +34,22 @@ export const SNACKBAR_COMMON_PROPS: SnackbarProps = {
         vertical: "bottom"
     },
     onClick: (event) => event.stopPropagation()
+}
+
+export const STRIKER_PROPERTIES: RigidBodyProps = {
+    type: "kinematicVelocity",
+    colliders: "hull",
+    activeCollisionTypes: ActiveCollisionTypes.ALL,
+    ccd: true
+}
+
+export const PUCK_PROPERTIES: RigidBodyProps = {
+    type: "dynamic",
+    colliders: "hull",
+    activeCollisionTypes: ActiveCollisionTypes.ALL,
+    ccd: true,
+    friction: 0.05,
+    restitution: 0.95,
+    linearDamping: 0.01,
+    enabledRotations: [false, true, false]
 }
