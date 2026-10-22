@@ -44,7 +44,6 @@ export const STRIKER_PROPERTIES: RigidBodyProps = {
 }
 
 export const PUCK_PROPERTIES: RigidBodyProps = {
-    type: "dynamic",
     colliders: "hull",
     activeCollisionTypes: ActiveCollisionTypes.ALL,
     ccd: true,

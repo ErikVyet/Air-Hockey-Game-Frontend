@@ -5,6 +5,7 @@ import { purple } from "@mui/material/colors";
 import { RigidBody } from "@react-three/rapier";
 import { useMemo, type Ref } from "react";
 import { ExtrudeGeometry, Mesh, Path, Shape, type ExtrudeGeometryOptions } from "three";
+import { BLUE_GOAL, RED_GOAL } from "../../constants/scene";
 
 type HockeyTableSurfaceProps = {
     ref?: Ref<Mesh>
@@ -140,13 +141,13 @@ export default function HockeyTable({ surfaceRef }: HockeyTableProps) {
                     <HockeyTableWall />
                 </group>
             </RigidBody>
-            <RigidBody name={"blue-goal"} type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.DYNAMIC_FIXED} sensor>
+            <RigidBody name={BLUE_GOAL} type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.DYNAMIC_FIXED} sensor>
                 <mesh position={[0, 0.1, -1.04]}>
                     <boxGeometry args={[0.41, 0.118, 0.08]}/>
                     <meshStandardMaterial color={"black"} opacity={1} transparent/>
                 </mesh>
             </RigidBody>
-            <RigidBody name={"red-goal"} type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.DYNAMIC_FIXED} sensor>
+            <RigidBody name={RED_GOAL} type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.DYNAMIC_FIXED} sensor>
                 <mesh position={[0, 0.1, 1.04]}>
                     <boxGeometry args={[0.41, 0.118, 0.08]}/>
                     <meshStandardMaterial color={"black"} opacity={1} transparent/>
