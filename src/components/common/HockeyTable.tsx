@@ -135,19 +135,19 @@ type HockeyTableProps = {
 export default function HockeyTable({ surfaceRef }: HockeyTableProps) {
     return (
         <group position={[0, -0.082, 0]}>
-            <RigidBody type={"fixed"} colliders={"trimesh"} activeCollisionTypes={ActiveCollisionTypes.DYNAMIC_FIXED}>
+            <RigidBody type={"fixed"} colliders={"trimesh"} activeCollisionTypes={ActiveCollisionTypes.ALL}>
                 <group>
                     <HockeyTableSurface ref={surfaceRef}/>
                     <HockeyTableWall />
                 </group>
             </RigidBody>
-            <RigidBody name={BLUE_GOAL} type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.DYNAMIC_FIXED} sensor>
+            <RigidBody name={BLUE_GOAL} type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL}>
                 <mesh position={[0, 0.1, -1.04]}>
                     <boxGeometry args={[0.41, 0.118, 0.08]}/>
                     <meshStandardMaterial color={"black"} opacity={1} transparent/>
                 </mesh>
             </RigidBody>
-            <RigidBody name={RED_GOAL} type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.DYNAMIC_FIXED} sensor>
+            <RigidBody name={RED_GOAL} type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL}>
                 <mesh position={[0, 0.1, 1.04]}>
                     <boxGeometry args={[0.41, 0.118, 0.08]}/>
                     <meshStandardMaterial color={"black"} opacity={1} transparent/>

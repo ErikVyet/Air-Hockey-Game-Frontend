@@ -30,11 +30,11 @@ export default function Scoreboard() {
             if (player.role === "player") {
                 if (player.isHost) {
                     setRedStrikerName(player.name);
-                    setRedStrikerScore(player.score);
+                    setRedStrikerScore(activeSession.state.redScore);
                 }
                 else {
                     setBlueStrikerName(player.name);
-                    setBlueStrikerScore(player.score);
+                    setBlueStrikerScore(activeSession.state.blueScore);
                 }
             }
         });

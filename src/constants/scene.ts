@@ -3,7 +3,7 @@ export const PHYSIC_TIME_STEP = 1 / 240; // 120 Hz
 
 export const RED_STRIKER_INITIAL_POSITION: [number, number, number] = [0, 0, 0.71];
 export const BLUE_STRIKER_INITIAL_POSITION: [number, number, number] = [0, 0, -0.71];
-export const PUCK_INITIAL_POSITION: [number, number, number] = [0, 0.05, 0];
+export const PUCK_INITIAL_POSITION: [number, number, number] = [0, -0.082 + 0.06, 0];
 
 export const CAMERA_TRANSITION_DURATION = 0.3;
 export const HOSTING_CAMERA_POSITION: [number, number, number] = [0, 3, 0];

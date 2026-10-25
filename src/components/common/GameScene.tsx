@@ -6,9 +6,11 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { SessionContext } from "../../contexts/SessionContext";
 import { Box3, MathUtils, Mesh, Vector3 } from "three";
-import { BLUE_STRIKER_INITIAL_POSITION, BLUE_STRIKER_NAME, PHYSIC_TIME_STEP, POINTER_OFFSET_Z, PUCK_INITIAL_POSITION, RED_STRIKER_INITIAL_POSITION, RED_STRIKER_NAME, STRIKER_SPEED_MULTIPLIER } from "../../constants/scene";
+import { BLUE_GOAL, BLUE_STRIKER_INITIAL_POSITION, BLUE_STRIKER_NAME, CAMERA_TRANSITION_DURATION, PHYSIC_TIME_STEP, POINTER_OFFSET_Z, PUCK_INITIAL_POSITION, RED_GOAL, RED_STRIKER_INITIAL_POSITION, RED_STRIKER_NAME, STRIKER_SPEED_MULTIPLIER } from "../../constants/scene";
 import { SessionMessage } from "../../enums/SessionMessage";
 import { SettingContext } from "../../contexts/SettingContext";
+import type { IRestoreStatePayload } from "../../interfaces/IRestoreStatePayload";
+import { useNavigate } from "react-router-dom";
 
 export function FixedGameScene() {
     return (
@@ -16,7 +18,7 @@ export function FixedGameScene() {
             <HockeyTable />
             <Striker position={BLUE_STRIKER_INITIAL_POSITION} color={"blue"} />
             <Striker position={RED_STRIKER_INITIAL_POSITION} color={"red"} />
-            <Puck initialPosition={[0, 0.5, 0]} />
+            <Puck type={"dynamic"}/>
         </Physics>
     );
 }
@@ -30,23 +32,28 @@ export function DynamicGameScene() {
     if (!sessionContext) return null;
     const { activeSession } = sessionContext;
 
+    const navigate = useNavigate();
+
     const redStrikerRef = useRef<RapierRigidBody>(null!);
     const blueStrikerRef = useRef<RapierRigidBody>(null!);
     const puckRef = useRef<RapierRigidBody>(null!);
     const boxRef = useRef<Box3>(new Box3());
     const tableSurfaceRef = useRef<Mesh>(null!);
-    // const currentRedStrikerPositionRef = useRef<Vector3>(new Vector3(...RED_STRIKER_INITIAL_POSITION));
-    // const currentBlueStrikerPositionRef = useRef<Vector3>(new Vector3(...BLUE_STRIKER_INITIAL_POSITION));
-    // const currentPuckPositionRef = useRef<Vector3>(new Vector3(...PUCK_INITIAL_POSITION));
-    const targetStrikerPosition = useRef<Vector3>(new Vector3());
+    const targetPuckPositionRef = useRef<Vector3>(new Vector3());
+    const targetStrikerPositionRef = useRef<Vector3>(new Vector3());
+    const targetRedStrikerPositionRef = useRef<Vector3>(new Vector3());
+    const targetBlueStrikerPositionRef = useRef<Vector3>(new Vector3());
 
     const [controlledStriker, setControlledStriker] = useState<"none" | "red" | "blue">("none");
     const [countDown, setCountDown] = useState(5);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
         if (!activeSession) return;
 
         handleUpdateControlledStriker();
+
+        const timeout = setTimeout(() => setIsInitialized(true), CAMERA_TRANSITION_DURATION * 100 + 1000);
 
         activeSession.onStateChange(state => {
             // Update the count down
@@ -57,124 +64,125 @@ export function DynamicGameScene() {
                 handleUpdateControlledStriker();
             }
 
+            if (state.countDown > 0) return;
+
             // Update opponent's striker position
             state.players.forEach(player => {
-                if (player.role !== "player") return;
-
-                if (player.sessionId === activeSession.sessionId) return;
+                if (player.role !== "player" || player.sessionId === activeSession.sessionId) return;
 
                 if (player.isHost) {
-                    // currentRedStrikerPositionRef.current?.fromArray(player.position);
-                    // redStrikerRef.current?.setNextKinematicTranslation(currentRedStrikerPositionRef.current);
-
-                    const redStriker = redStrikerRef.current;
-
-                    const currentPosition = redStriker.translation();
-                    
-                    const targetX = MathUtils.clamp(player.position[0], -0.4, 0.4);
-                    const targetZ = MathUtils.clamp(player.position[2], -POINTER_OFFSET_Z, 0.82 - POINTER_OFFSET_Z);
-                    
-                    const velocityX = (targetX - currentPosition.x) * STRIKER_SPEED_MULTIPLIER;
-                    const velocityZ = (targetZ - currentPosition.z) * STRIKER_SPEED_MULTIPLIER;
-
-                    redStriker?.setLinvel({ x: velocityX, y: currentPosition.y, z: velocityZ }, true);
+                    targetRedStrikerPositionRef.current.set(
+                        MathUtils.clamp(state.redStrikerPosition[0], -0.4, 0.4),
+                        state.redStrikerPosition[1],
+                        MathUtils.clamp(state.redStrikerPosition[2] - POINTER_OFFSET_Z, -POINTER_OFFSET_Z, 0.82 - POINTER_OFFSET_Z)
+                    );
                 } 
-                else {
-                    // currentBlueStrikerPositionRef.current?.fromArray(player.position);
-                    // blueStrikerRef.current?.setNextKinematicTranslation(currentBlueStrikerPositionRef.current);
-                
-                    const blueStriker = blueStrikerRef.current;
-
-                    const currentPosition = blueStriker.translation();
-
-                    const targetX = MathUtils.clamp(player.position[0], -0.4, 0.4);
-                    const targetZ = MathUtils.clamp(player.position[2], POINTER_OFFSET_Z - 0.82, POINTER_OFFSET_Z);
-
-                    const velocityX = (targetX - currentPosition.x) * STRIKER_SPEED_MULTIPLIER;
-                    const velocityZ = (targetZ - currentPosition.z) * STRIKER_SPEED_MULTIPLIER;
-
-                    blueStriker?.setLinvel({ x: velocityX, y: currentPosition.y, z: velocityZ }, true);
+                else {                
+                    targetBlueStrikerPositionRef.current.set(
+                        MathUtils.clamp(state.blueStrikerPosition[0], -0.4, 0.4),
+                        state.blueStrikerPosition[1],
+                        MathUtils.clamp(state.blueStrikerPosition[2] + POINTER_OFFSET_Z, POINTER_OFFSET_Z - 0.82, POINTER_OFFSET_Z)
+                    );
                 }
             });
+
+            return () => { clearTimeout(timeout); }
         });
 
-        activeSession.onMessage(SessionMessage.UPDATE_PUCK, (position: [number, number, number]) => {
-            // Update puck's position (Only for non-host player - blue striker)
+        activeSession.onMessage(SessionMessage.NAVIGATE_TO_RESULT, () => {
+            activeSession.leave(true).then(() => {
+                let redName = "";
+                let blueName = "";
+                activeSession.state.players.forEach(player => {
+                    if (player.role !== "player") return;
+
+                    if (player.isHost) {
+                        redName = player.name;
+                    }
+                    else {
+                        blueName = player.name;
+                    }
+                });
+                navigate("/game/result", { replace: true, state: {
+                    redName, blueName,
+                    redScore: activeSession.state.redScore,
+                    blueScore: activeSession.state.blueScore
+                } });
+            }).catch(() => {
+                navigate("/", { replace: true });  
+            });   
+        });
+
+        activeSession.onMessage(SessionMessage.RESTORE_STATE, ({ redStrikerPosition, blueStrikerPosition, puckPosition }: IRestoreStatePayload) => {
             const puck = puckRef.current;
-            if (controlledStriker !== "red" && puck) {
-                const currentPosition = puck.translation();
-                const targetPosition = [...position];
-                const time = 1 / fps;
+            const redStriker = redStrikerRef.current;
+            const blueStriker = blueStrikerRef.current;
+            if (!puck || !redStriker || !blueStriker) return;
 
-                const velocityX = (targetPosition[0] - currentPosition.x) / time;
-                const velocityY = (targetPosition[1] - currentPosition.y) / time;
-                const velocityZ = (targetPosition[2] - currentPosition.z) / time;
-
-                puck.setLinvel({ x: velocityX, y: velocityY, z: velocityZ }, true);
-            }
+            puck.setTranslation({ x: puckPosition[0], y: puckPosition[1], z: puckPosition[2] }, true);
+            redStriker.setTranslation({ x: redStrikerPosition[0], y: redStrikerPosition[1], z: redStrikerPosition[2] }, true);
+            blueStriker.setTranslation({ x: blueStrikerPosition[0], y: blueStrikerPosition[1], z: blueStrikerPosition[2] }, true);
         });
     }, [activeSession]);
 
     useEffect(() => {
+        if (controlledStriker === "none" || !isInitialized) return;
+
         const interval = setInterval(() => {
             const redStriker = redStrikerRef.current;
             const blueStriker = blueStrikerRef.current;
             let position: [number, number, number] | undefined = undefined;
             if (controlledStriker === "red" && redStriker) {
                 const redStrikerPosition = redStriker.translation();
-                position = [redStrikerPosition.x, redStrikerPosition.y, redStrikerPosition.z];
+                position = [redStrikerPosition.x, redStrikerPosition.y, redStrikerPosition.z + POINTER_OFFSET_Z];
+            
+                const puck = puckRef.current;
+                if (puck) {
+                    const puckPosition = puck.translation();
+                    activeSession?.send(SessionMessage.UPDATE_PUCK, [puckPosition.x, puckPosition.y, puckPosition.z]);
+                }
             }
             else if (controlledStriker === "blue" && blueStriker) {
                 const blueStrikerPosition = blueStriker.translation();
-                position = [blueStrikerPosition.x, blueStrikerPosition.y, blueStrikerPosition.z];
+                position = [blueStrikerPosition.x, blueStrikerPosition.y, blueStrikerPosition.z - POINTER_OFFSET_Z];
             }
             
-            if (position && controlledStriker !== "none") {
+            if (position) {
                 activeSession?.send(SessionMessage.UPDATE_STRIKER, position);
-            }
-
-            const puck = puckRef.current;
-            if (controlledStriker === "red" && puck) {
-                const currentPuckPosition = puck.translation();
-                activeSession?.send(SessionMessage.UPDATE_PUCK, [currentPuckPosition.x, currentPuckPosition.y, currentPuckPosition.z]);
             }
         }, Math.floor(1000 / fps));
 
         return () => { clearInterval(interval); }
-    }, [activeSession, controlledStriker, fps]);
+    }, [activeSession, controlledStriker, fps, isInitialized]);
 
-    useFrame(({ raycaster, camera, pointer }, _delta) => {
-        if (countDown > 0) return;
+    useFrame(({ raycaster, camera, pointer }, delta) => {
+        if (countDown > 0 || !isInitialized || !activeSession?.state || activeSession?.state?.isPaused) return;
 
-        const redStriker = redStrikerRef.current;
-        const blueStriker = blueStrikerRef.current;
         const tableSurface = tableSurfaceRef.current;
-        if (!redStriker || !blueStriker || !tableSurface) return;
+        if (!tableSurface) return;
 
         raycaster.setFromCamera(pointer, camera);
-        const intersection = raycaster.ray.intersectBox(boxRef.current.setFromObject(tableSurface), targetStrikerPosition.current);
+        const intersection = raycaster.ray.intersectBox(boxRef.current.setFromObject(tableSurface), targetStrikerPositionRef.current);
 
-        /* Use these when striker is kinematic position */
-        // if (controlledStriker === "red" && intersection) {
-        //     const clampedX = MathUtils.clamp(intersection.x, -0.4, 0.4);
-        //     const clampedZ = MathUtils.clamp(intersection.z - POINTER_OFFSET_Z, 0 - POINTER_OFFSET_Z, 0.82 - POINTER_OFFSET_Z);
-
-        //     currentRedStrikerPositionRef.current.x = MathUtils.damp(currentRedStrikerPositionRef.current.x, clampedX, STRIKER_LAMBDA, delta);
-        //     currentRedStrikerPositionRef.current.z = MathUtils.damp(currentRedStrikerPositionRef.current.z, clampedZ, STRIKER_LAMBDA, delta);
-
-        //     redStriker.setNextKinematicTranslation(currentRedStrikerPositionRef.current);
-        // }
-        // else if (controlledStriker === "blue" && intersection) {
-        //     const clampedX = MathUtils.clamp(intersection.x, -0.4, 0.4);
-        //     const clampedZ = MathUtils.clamp(intersection.z + POINTER_OFFSET_Z, POINTER_OFFSET_Z - 0.82, POINTER_OFFSET_Z);
-
-        //     currentBlueStrikerPositionRef.current.x = MathUtils.damp(currentBlueStrikerPositionRef.current.x, clampedX, STRIKER_LAMBDA, delta);
-        //     currentBlueStrikerPositionRef.current.z = MathUtils.damp(currentBlueStrikerPositionRef.current.z, clampedZ, STRIKER_LAMBDA, delta);
-
-        //     blueStriker.setNextKinematicTranslation(currentBlueStrikerPositionRef.current);
-        // }
+        handleUpdateControlledStrikerPosition(intersection);
+        handleUpdateOpponentStrikerPosition();
+        handleUpdatePuckPosition(delta);
         
-        /* Use these when striker is kinematic velocity */
+    });
+
+    const handleUpdateControlledStriker = () => {
+        if (!activeSession?.state?.players) return;
+
+        const player = activeSession.state.players.get(activeSession.sessionId);
+        if (player?.role === "player") {
+            setControlledStriker(player.isHost ? "red" : "blue");
+        }
+    };
+    const handleUpdateControlledStrikerPosition = (intersection: Vector3 | null) => {
+        const redStriker = redStrikerRef.current;
+        const blueStriker = blueStrikerRef.current;
+        if (!redStriker || !blueStriker || !activeSession?.state || activeSession?.state?.isPaused) return;
+        
         if (controlledStriker === "red") {
             if (intersection) {
                 const targetX = MathUtils.clamp(intersection.x, -0.4, 0.4);
@@ -184,7 +192,7 @@ export function DynamicGameScene() {
 
                 const velocityX = (targetX - currentRedPosition.x) * STRIKER_SPEED_MULTIPLIER;
                 const velocityZ = (targetZ - currentRedPosition.z) * STRIKER_SPEED_MULTIPLIER;
-
+            
                 redStriker.setLinvel({ x: velocityX, y: 0, z: velocityZ }, true);
             }
             else {
@@ -207,19 +215,118 @@ export function DynamicGameScene() {
                 blueStriker.setLinvel({ x: 0, y: 0, z: 0 }, true);
             }
         }
-    });
+    };
+    const handleUpdateOpponentStrikerPosition = () => {
+        const blueStriker = blueStrikerRef.current;
+        const redStriker = redStrikerRef.current;
 
-    const handleUpdateControlledStriker = () => {
-        if (!activeSession?.state?.players) return;
+        if (!blueStriker || !redStriker || !activeSession?.state || activeSession?.state?.isPaused) return;
 
-        const player = activeSession.state.players.get(activeSession.sessionId);
-        if (player?.role === "player") {
-            setControlledStriker(player.isHost ? "red" : "blue");
+        if (controlledStriker === "red") {
+            const currentBluePosition = blueStriker.translation();
+            const targetBluePosition = targetBlueStrikerPositionRef.current;
+            const blueStrikerVelocityX = (targetBluePosition.x - currentBluePosition.x) * STRIKER_SPEED_MULTIPLIER;
+            const blueStrikerVelocityZ = (targetBluePosition.z - currentBluePosition.z) * STRIKER_SPEED_MULTIPLIER;
+            blueStriker.setLinvel({ x: blueStrikerVelocityX, y: 0, z: blueStrikerVelocityZ }, true);
+        }
+        else if (controlledStriker === "blue") {
+            const currentRedPosition = redStriker.translation();
+            const targetRedPosition = targetRedStrikerPositionRef.current;
+            const redStrikerVelocityX = (targetRedPosition.x - currentRedPosition.x) * STRIKER_SPEED_MULTIPLIER;
+            const redStrikerVelocityZ = (targetRedPosition.z - currentRedPosition.z) * STRIKER_SPEED_MULTIPLIER;
+            redStriker.setLinvel({ x: redStrikerVelocityX, y: 0, z: redStrikerVelocityZ }, true);
+        }
+        else {
+            const currentBluePosition = blueStriker.translation();
+            const targetBluePosition = targetBlueStrikerPositionRef.current;
+            const blueStrikerVelocityX = (targetBluePosition.x - currentBluePosition.x) * STRIKER_SPEED_MULTIPLIER;
+            const blueStrikerVelocityZ = (targetBluePosition.z - currentBluePosition.z) * STRIKER_SPEED_MULTIPLIER;
+            blueStriker.setLinvel({ x: blueStrikerVelocityX, y: 0, z: blueStrikerVelocityZ }, true);
+
+            const currentRedPosition = redStriker.translation();
+            const targetRedPosition = targetRedStrikerPositionRef.current;
+            const redStrikerVelocityX = (targetRedPosition.x - currentRedPosition.x) * STRIKER_SPEED_MULTIPLIER;
+            const redStrikerVelocityZ = (targetRedPosition.z - currentRedPosition.z) * STRIKER_SPEED_MULTIPLIER;
+            redStriker.setLinvel({ x: redStrikerVelocityX, y: 0, z: redStrikerVelocityZ }, true);
         }
     };
-    const handlePuckCollisionEnter = (payload: CollisionEnterPayload) => {
-        const collider = payload.other.rigidBodyObject?.name;
-        console.log(collider);
+    const handleUpdatePuckPosition = (delta: number) => {
+        const puck = puckRef.current;
+        if (!puck) return;
+
+        const puckPosition = activeSession?.state?.puckPosition;
+        if (controlledStriker !== "red" && puckPosition) {
+            targetPuckPositionRef.current.set(...puckPosition);
+            const puckCurrentPosition = puck.translation();
+
+            const targetX = MathUtils.damp(puckCurrentPosition.x, targetPuckPositionRef.current.x, 20, delta);
+            const targetZ = MathUtils.damp(puckCurrentPosition.z, targetPuckPositionRef.current.z, 20, delta);
+
+            puck.setNextKinematicTranslation({ x: targetX, y: targetPuckPositionRef.current.y, z: targetZ });
+        }
+    };
+    const handleResetStrikersVelocity = () => {
+        const redStriker = redStrikerRef.current;
+        const blueStriker = blueStrikerRef.current;
+        if (!redStriker || !blueStriker) return;
+
+        redStriker.setLinvel({ x: 0, y: 0, z: 0 }, true);
+        blueStriker.setLinvel({ x: 0, y: 0, z: 0 }, true);
+    };
+    const handleResetStrikersPosition = () => {
+        const redStriker = redStrikerRef.current;
+        const blueStriker = blueStrikerRef.current;
+        if (!redStriker || !blueStriker) return;
+
+        targetRedStrikerPositionRef.current.set(...RED_STRIKER_INITIAL_POSITION);
+        redStriker.setTranslation(targetRedStrikerPositionRef.current, true);
+        redStriker.setLinvel({ x: 0, y: 0, z: 0 }, true);
+
+        targetBlueStrikerPositionRef.current.set(...BLUE_STRIKER_INITIAL_POSITION);
+        blueStriker.setTranslation(targetBlueStrikerPositionRef.current, true);
+        blueStriker.setLinvel({ x: 0, y: 0, z: 0 }, true);
+    };
+    const handleResetPuckPosition = () => {
+        const puck = puckRef.current;
+        if (!puck) return;
+
+        targetPuckPositionRef.current.set(...PUCK_INITIAL_POSITION);
+        puck.setTranslation(targetPuckPositionRef.current, true);
+    }
+    const handleCollisionEnter = (payload: CollisionEnterPayload) => {
+        if (!activeSession?.state || (payload.other.rigidBodyObject?.name !== RED_GOAL && payload.other.rigidBodyObject?.name !== BLUE_GOAL)) return;
+
+        activeSession.send(SessionMessage.PAUSE_GAME);
+        handleResetStrikersVelocity();
+        if (controlledStriker === "red") {
+            const updateScoreTimeout = setTimeout(() => {
+                switch (payload.other.rigidBodyObject?.name) {
+                    case (RED_GOAL): {
+                        activeSession?.send(SessionMessage.UPDATE_SCORES, "blue");
+                        break;
+                    }
+                    case (BLUE_GOAL): {
+                        activeSession?.send(SessionMessage.UPDATE_SCORES, "red");
+                        break;
+                    }
+                }
+                return () => { clearTimeout(updateScoreTimeout); }
+            }, 300);
+        }
+
+        const timeout = setTimeout(() => {
+            if (activeSession.state.round === activeSession.state.maxRounds) {
+                activeSession.send(SessionMessage.NAVIGATE_TO_RESULT);
+            }
+            else {
+                activeSession.send(SessionMessage.UPDATE_ROUND);
+                handleResetStrikersPosition();
+                handleResetPuckPosition();
+                activeSession.send(SessionMessage.START_COUNT_DOWN);
+            }
+        }, 3000);
+
+        return () => { clearTimeout(timeout); }
     };
 
     return (
@@ -227,7 +334,7 @@ export function DynamicGameScene() {
             <HockeyTable surfaceRef={tableSurfaceRef}/>
             <Striker ref={redStrikerRef} name={RED_STRIKER_NAME} position={RED_STRIKER_INITIAL_POSITION} color={"red"} />
             <Striker ref={blueStrikerRef} name={BLUE_STRIKER_NAME} position={BLUE_STRIKER_INITIAL_POSITION} color={"blue"} />
-            <Puck ref={puckRef} type={controlledStriker === "red" ? "dynamic" : "kinematicVelocity"} initialPosition={PUCK_INITIAL_POSITION} onCollisionEnter={handlePuckCollisionEnter}/>
+            <Puck ref={puckRef} type={controlledStriker === "red" ? "dynamic" : "kinematicPosition"} onCollisionEnter={handleCollisionEnter}/>
         </Physics>
     );
 }

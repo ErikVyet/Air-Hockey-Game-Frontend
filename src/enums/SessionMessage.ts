@@ -1,6 +1,7 @@
 
 export enum SessionMessage {
     START_GAME = "startGame",
+    PAUSE_GAME = "pauseGame",
     START_COUNT_DOWN = "startCountDown",
     UPDATE_MAX_ROUNDS = "updateMaxRounds",
     UPDATE_PUCK = "updatePuck",
@@ -13,5 +14,7 @@ export enum SessionMessage {
     UPDATE_PLAYER_READY_STATE = "updatePlayerReadyState",
     KICK_PLAYER = "kickPlayer",
     SEND_MESSAGE = "sendMessage",
-    CAUGHT_ERROR = "caughtError"
+    CAUGHT_ERROR = "caughtError",
+    RESTORE_STATE = "restoreState",
+    NAVIGATE_TO_RESULT = "navigateToResult"
 }

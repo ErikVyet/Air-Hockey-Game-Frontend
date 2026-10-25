@@ -7,4 +7,3 @@ export default function useModel(path: ModelPath) {
 }
 
 useGLTF.preload(ModelPath.AIR_HOCKEY_ITEMS);
-useGLTF.preload(ModelPath.AIR_HOCKEY_PUCK);

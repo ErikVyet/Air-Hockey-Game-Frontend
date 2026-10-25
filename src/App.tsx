@@ -9,6 +9,7 @@ import type { Room } from "@colyseus/sdk";
 import type { IGameState } from "./interfaces/IGameState";
 import { GameLayout } from "./layouts/GameLayout";
 import GameView from "./views/GameView";
+import ResultView from "./views/ResultView";
 
 export default function App() {
     const [masterVolumn, setMasterVolumn] = useState(() => {
@@ -68,6 +69,7 @@ export default function App() {
                 </Route>
                 <Route element={<GameLayout/>}>
                     <Route path={"game/:reconnectionToken"} element={<GameView/>}/>
+                    <Route path={"game/result"} element={<ResultView/>}/>
                 </Route>
             </Route>
         )

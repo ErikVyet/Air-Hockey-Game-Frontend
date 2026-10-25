@@ -105,9 +105,7 @@ export default function SessionList() {
     const handleJoinSessionWithPassword = () => {
         setIsJoining(true);
         client.joinById(targetSessionId, {
-            password,
-            position: BLUE_STRIKER_INITIAL_POSITION,
-            isHost: false
+            password
         }).then(session => {
             setActiveSession(session);
             navigate(`/session/${session.reconnectionToken}`, { replace: true });

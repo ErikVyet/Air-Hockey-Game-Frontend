@@ -100,11 +100,12 @@ export default function GameView() {
 
     return (
         <>
-            {countDown >= 0 && (
-                <Typography className={`absolute! top-1/2 left-1/2 -translate-1/2 z-10 ${FONT_FAMILY} text-green-600 text-6xl! xl:text-9xl! text-shadow-lg!`}>{countDown > 0 ? countDown : "Start!"}</Typography>
+            {countDown >= 0 && activeSession?.state && (
+                <Typography className={`absolute! top-1/2 left-1/2 -translate-1/2 z-10 ${FONT_FAMILY} text-green-600 text-6xl! xl:text-9xl! text-shadow-lg! whitespace-nowrap`}>{countDown >= 4 ? (activeSession?.state.round === activeSession?.state.maxRounds ? 'Final Round' : `Round ${activeSession?.state?.round}`) : countDown === 0 ? "Start!" : countDown}</Typography>
             )}
             <Canvas className="w-full h-screen!" camera={{ position: DEFAULT_CAMERA_POSITION, fov: 50 }} shadows>
                 <ambientLight position={[1, 1, 1]} intensity={2} />
+                <axesHelper args={[0.5]}/>
                 <CameraControls ref={(node) => { cameraControlsRef.current = node!; if (node) setIsControlsReady(true); handleUpdatePlayerView(); }} smoothTime={CAMERA_TRANSITION_DURATION} enabled={false}/>
                 <DynamicGameScene />
             </Canvas>

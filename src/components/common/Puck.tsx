@@ -1,27 +1,24 @@
 import { RapierRigidBody, RigidBody, type CollisionEnterPayload, type RigidBodyTypeString } from "@react-three/rapier";
-import { ModelPath } from "../../enums/ModelPath";
-import useModel from "../../hooks/useModel";
-import { amber } from "@mui/material/colors";
-import { PUCK_MESH_NAME } from "../../constants/model";
-import type { Mesh } from "three";
 import type { Ref } from "react";
 import { PUCK_PROPERTIES } from "../../constants/props";
 
 type PuckProps = {
-    initialPosition: [x: number, y: number, z: number],
+    type: RigidBodyTypeString,
     ref?: Ref<RapierRigidBody>,
-    type?: RigidBodyTypeString,
     onCollisionEnter?: (payload: CollisionEnterPayload) => void
 }
 
-export default function Puck({ initialPosition, ref, type = "dynamic", onCollisionEnter }: PuckProps) {
-    const { nodes } = useModel(ModelPath.AIR_HOCKEY_PUCK);
-
+export default function Puck({ ref, type, onCollisionEnter }: PuckProps) {
     return (
         <RigidBody ref={ref} type={type} {...PUCK_PROPERTIES} onCollisionEnter={onCollisionEnter}>
-            <mesh geometry={(nodes[PUCK_MESH_NAME] as Mesh).geometry} position={initialPosition} rotation={[Math.PI / 2, 0, 0]} scale={0.06} castShadow receiveShadow>
-                <meshStandardMaterial color={amber[500]} roughness={0.5} metalness={0.4} />
+            <mesh castShadow receiveShadow>
+                <cylinderGeometry args={[0.05, 0.05, 0.02, 32]} />
+                <meshStandardMaterial  color="#1a1a1a" roughness={0.3}metalness={0.8}/>
             </mesh>
         </RigidBody>
+        // <mesh ref={ref} castShadow receiveShadow>
+        //     <cylinderGeometry args={[0.05, 0.05, 0.02, 32]} />
+        //     <meshStandardMaterial color="#1a1a1a" roughness={0.3} metalness={0.8} />
+        // </mesh>
     );
 }
