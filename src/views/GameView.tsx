@@ -105,7 +105,6 @@ export default function GameView() {
             )}
             <Canvas className="w-full h-screen!" camera={{ position: DEFAULT_CAMERA_POSITION, fov: 50 }} shadows>
                 <ambientLight position={[1, 1, 1]} intensity={2} />
-                <axesHelper args={[0.5]}/>
                 <CameraControls ref={(node) => { cameraControlsRef.current = node!; if (node) setIsControlsReady(true); handleUpdatePlayerView(); }} smoothTime={CAMERA_TRANSITION_DURATION} enabled={false}/>
                 <DynamicGameScene />
             </Canvas>
